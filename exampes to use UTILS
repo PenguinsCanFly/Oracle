@@ -2,3 +2,36 @@ SELECT ResultsStaging.FNC_CONCAT_V2_SET(cursor(
 SELECT Table_Name FROM USER_TABLES ORDER BY TABLE_NAME)) FROM DUAL;
 
 
+
+SELECT ResultsStaging.FNC_CONCAT_V2_SET(cursor(
+SELECT Table_Name FROM USER_TABLES ORDER BY TABLE_NAME)) FROM DUAL;
+
+select * from dba_objects where object_name = 'XL';
+SELECT * FROM DBA_SYNONYMS WHERE SYNONYM_NAME = 'XL';
+
+SELECT * FROM TABLE(FNC_GET_NAME_VALUES('Dmitry=Goubar,Oleg=Khaykin'));
+
+declare
+  i pls_integer;
+  j pls_integer;
+begin
+  xl.open_log('DG_TEST','Dima - test');
+  for i in 1..9 loop
+    XL.begin_action('Calculating row');
+    for j in 1..9 loop
+      xl.begin_action('Calculationg cell');
+      xl.end_action('Result='||i*j);
+    end loop;
+    xl.end_action('Done');
+  end loop;
+  
+  xl.close_log('Successfully completed');
+end;
+/
+
+exec xl.close_log('Successfully completed');
+
+select * from resultsstaging.load order by loaduid desc;
+select * from resultsstaging.eventlog where loaduid=48510
+order by 1
+;
