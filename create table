@@ -1,0 +1,50 @@
+prompt Creating table ERR_TRADESELECTPOSITION
+
+begin
+  for r in
+  (
+    select owner, object_name
+    from all_objects
+    where owner = 'RESULTSSTAGING'
+    and object_type = 'TABLE'
+    and object_name = 'ERR_TRADESELECTPOSITION'
+  )
+  loop
+    execute immediate 'drop table '||r.owner||'.'||r.object_name|| ' cascade constraints purge';
+  end loop;
+end;
+/
+
+CREATE TABLE resultsstaging.err_tradeselectposition
+(
+  ORA_ERR_NUMBER$         NUMBER,
+  ORA_ERR_MESG$           VARCHAR2(2000 BYTE),
+  ORA_ERR_ROWID$          UROWID(4000),
+  ORA_ERR_OPTYP$          VARCHAR2(2 BYTE),
+  ORA_ERR_TAG$            INTEGER,
+  TRADESELECTPOSITIONUID  VARCHAR2(4000 BYTE),
+  REVALDATE               VARCHAR2(4000 BYTE),
+  BOOKMAPID               VARCHAR2(4000 BYTE),
+  SOURCESYSTEMUID         VARCHAR2(4000 BYTE),
+  PORTFOLIONAME           VARCHAR2(4000 BYTE),
+  BONDIDTYPEUID           VARCHAR2(4000 BYTE),
+  BONDID                  VARCHAR2(4000 BYTE),
+  NUMLOTS                 VARCHAR2(4000 BYTE),
+  TRADEID                 VARCHAR2(4000 BYTE),
+  ENTRY_TS                TIMESTAMP(6) DEFAULT SYSTIMESTAMP NOT NULL
+)
+TABLESPACE resultsstaging_data
+PARTITION BY RANGE (ora_err_tag$)
+INTERVAL(10000)
+(
+  PARTITION p1 VALUES LESS THAN (1)
+) NOMONITORING;
+
+CREATE INDEX resultsstaging.idx_err_tradeselect_tag
+ ON resultsstaging.err_tradeselectposition(ora_err_tag$) LOCAL
+ TABLESPACE resultsstaging_index;  
+
+COMMENT ON TABLE resultsstaging.err_tradeselectposition IS 'DML Error Logging table for RESULTS.TRADESELECTPOSITION';
+
+GRANT SELECT ON resultsstaging.err_tradeselectposition TO rdb_read;
+GRANT INSERT, SELECT ON resultsstaging.err_tradeselectposition TO rdb_write;
