@@ -31,7 +31,6 @@ end;
 
 exec xl.close_log('Successfully completed');
 
-select * from resultsstaging.load order by loaduid desc;
-select * from resultsstaging.eventlog where loaduid=48510
-order by 1
-;
+select * from dbg_process_logs order by proc_id desc;
+select * from dbg_log_data where proc_id=48510 order by 1;
+select *  from dbg_performance_data WHERE proc_id=48510;
